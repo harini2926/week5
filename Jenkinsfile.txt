@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository...'
+                checkout scm
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                echo 'Compiling...'
+                bat 'javac Factorial.java TestFactorial.java'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running test...'
+                bat 'java TestFactorial'
+            }
+        }
+
+        stage('Package JAR') {
+            steps {
+                echo 'Creating JAR...'
+                bat '"C:\\Program Files\\Java\\jdk-17\\bin\\jar.exe" cfm factorial.jar manifest.txt *.class'
+            }
+        }
+
+        stage('Archive JAR') {
+            steps {
+                echo 'Archiving JAR...'
+                archiveArtifacts artifacts: 'factorial.jar'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build, test and JAR creation successful!'
+        }
+
+        failure {
+            echo 'Build or test failed!'
+        }
+    }
+}
